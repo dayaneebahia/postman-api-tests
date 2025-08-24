@@ -15,7 +15,7 @@ jobs:
       # 2. Clona sempre a branch develop da API
       - name: Clone API Repository (develop)
         run: |
-            git clone --branch develop --single-branch https://${{ secrets.GITHUB_TOKEN }}@github.com/dayaneebahia/gradia_api.git
+          git clone --branch develop --single-branch https://${{ secrets.GH_PAT }}@github.com/dayaneebahia/gradia_api.git
 
       # 3. Instala o Docker Compose
       - name: Set up Docker Compose
