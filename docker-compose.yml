@@ -30,8 +30,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    env_file:
-      - ./gradia_api/.env
     environment:
       - DEBUG=True
       - DB_NAME=gradiafinance
