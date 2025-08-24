@@ -19,7 +19,7 @@ services:
       retries: 5
 
   gradiafinance:
-    build: ./gradia_api    # <-- monta a API direto do repositório clonado
+    build: ./gradia_api              # <-- usa a API clonada
     container_name: django_app
     restart: always
     volumes:

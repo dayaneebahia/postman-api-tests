@@ -1,7 +1,7 @@
 name: Run Postman API Tests
 
 on:
-  workflow_dispatch:  
+  workflow_dispatch:  # Executa manualmente
 
 jobs:
   postman-tests:
@@ -9,16 +9,21 @@ jobs:
 
     steps:
       # 1. Checkout do repositório de testes
-      - name: Checkout Repository
+      - name: Checkout Tests Repository
         uses: actions/checkout@v3
 
-      # 2. Instala o Docker Compose
+      # 2. Clona sempre a branch develop da API
+      - name: Clone API Repository (develop)
+        run: |
+          git clone --branch develop --single-branch https://github.com/dayaneebahia/gradia_api.git
+
+      # 3. Instala o Docker Compose
       - name: Set up Docker Compose
         run: |
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
-      # 3. Sobe os containers (API + DB) via Docker
+      # 4. Sobe os containers (API + DB) via Docker
       - name: Build and start API via Docker Compose
         run: |
           docker-compose up -d --build
@@ -28,26 +33,26 @@ jobs:
             sleep 5
           done
 
-      # 4. Instala Node.js
+      # 5. Instala Node.js
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      # 5. Instala Newman (CLI do Postman)
+      # 6. Instala Newman
       - name: Install Newman
         run: npm install -g newman
 
-      # 6. Executa os testes Postman
+      # 7. Roda os testes do Postman
       - name: Run Postman Collection
         run: |
           newman run collections/Finance\ API.postman_collection.json \
           -e collections/DEV.postman_environment.json \
           --reporters cli,junit \
           --reporter-junit-export results.xml
-        continue-on-error: true  # Continua mesmo se falhar
+        continue-on-error: true
 
-      # 7. Faz upload dos resultados como artefato
+      # 8. Faz upload do relatório como artefato
       - name: Upload Test Results as Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -55,7 +60,7 @@ jobs:
           path: results.xml
         if: always()
 
-      # 8. Publica o relatório JUnit na aba Actions
+      # 9. Publica o relatório JUnit para visualização
       - name: Publish JUnit Report
         uses: dorny/test-reporter@v1
         with:
@@ -64,7 +69,7 @@ jobs:
           reporter: jest-junit
         if: always()
 
-      # 9. Para e remove os containers no final
+      # 10. Para e remove os containers no final
       - name: Stop and remove Docker containers
         run: docker-compose down
         if: always()
