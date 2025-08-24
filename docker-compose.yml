@@ -46,22 +46,24 @@ jobs:
           -e collections/DEV.postman_environment.json \
           --reporters cli,junit \
           --reporter-junit-export results.xml
-        continue-on-error: true   # <-- continue even if tests fail
+        continue-on-error: true   # continue even if tests fail
 
       - name: Upload Test Results as Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: postman-results
           path: results.xml
-        if: always()   # <-- always upload the results
+        if: always()   # always upload results
 
-      - name: Publish JUnit Report
-        uses: actions/upload-test-report@v3
+      - name: Publish JUnit Test Report
+        uses: dorny/test-reporter@v1
         with:
+          name: Postman API Tests
           path: results.xml
           format: junit
-        if: always()   # <-- always publish report
+          fail-on-error: false
+        if: always()   # always publish report
 
       - name: Stop and remove Docker containers
         run: docker-compose down
-        if: always()   # <-- always clean up
+        if: always()   # always clean up
