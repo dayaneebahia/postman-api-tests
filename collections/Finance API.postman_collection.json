@@ -1,0 +1,1557 @@
+{
+	"info": {
+		"_postman_id": "0bf5b84a-cbfa-4647-a5d8-14575cec94a5",
+		"name": "Finance API",
+		"description": "Collection of all Finance API endpoints for testing.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20760720",
+		"_collection_link": "https://gold-meteor-48427.postman.co/workspace/Ascend~369c739f-ce7a-4ade-9f20-76c5ac6248f7/collection/20760720-0bf5b84a-cbfa-4647-a5d8-14575cec94a5?action=share&source=collection_link&creator=20760720"
+	},
+	"item": [
+		{
+			"name": "Get Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();",
+							"pm.environment.set(\"firebase_token\", response.idToken);",
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.eql(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response has the required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.all.keys('kind', 'localId', 'email', 'displayName', 'idToken', 'registered', 'refreshToken', 'expiresIn');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Email is in a valid format\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.email).to.exist;",
+							"    pm.expect(responseData.email).to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Registered field is a boolean\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.have.property('registered').that.is.a('boolean');",
+							"});",
+							"",
+							"",
+							"pm.test(\"ExpiresIn should be a positive integer\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.have.property('expiresIn');",
+							"    pm.expect(parseInt(responseData.expiresIn)).to.be.a('number').and.to.be.above(0);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"d71332705@gmail.com\",\n  \"password\": \"Day@2024\",\n  \"returnSecureToken\": true\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAxPlQOBK6aaE2vB7QBJzCWA2uPyPkYr4o",
+					"protocol": "https",
+					"host": [
+						"identitytoolkit",
+						"googleapis",
+						"com"
+					],
+					"path": [
+						"v1",
+						"accounts:signInWithPassword"
+					],
+					"query": [
+						{
+							"key": "key",
+							"value": "AIzaSyAxPlQOBK6aaE2vB7QBJzCWA2uPyPkYr4o"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Period",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const randomYear = Math.floor(Math.random() * (1700 - 1600 + 1)) + 1000;",
+							"const title = `${randomYear}`;",
+							"",
+							"// Salva no ambiente para usar no corpo do POST",
+							"pm.environment.set(\"periodTitle\", title);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Fixed response code check",
+							"const responseData = pm.response.json();",
+							"pm.environment.set(\"periodId\", responseData.id);",
+							"",
+							"// Save each cycle id",
+							"responseData.cycles.forEach(cycle => {",
+							"    pm.environment.set(`cycleId_${cycle.month}`, cycle.id);",
+							"});",
+							"",
+							"pm.test(\"Response status code is 201\", function () {",
+							"    pm.expect(pm.response.code).to.equal(201);",
+							"});",
+							"",
+							"pm.test(\"The 'id' must be a non-empty string\", function () {",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.id).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+							"});",
+							"",
+							"pm.test(\"The 'cycles' array should not be empty\", function () {",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.cycles).to.exist.and.to.be.an('array').that.is.not.empty;",
+							"});",
+							"",
+							"pm.test(\"Ensure all 'cycle.id' values are unique\", function () {",
+							"    pm.expect(responseData.cycles).to.be.an('array');",
+							"    ",
+							"    const cycleIds = responseData.cycles.map(cycle => cycle.id);",
+							"    const uniqueCycleIds = new Set(cycleIds);",
+							"",
+							"    pm.expect(uniqueCycleIds.size).to.equal(cycleIds.length, \"Cycle IDs should be unique\");",
+							"});",
+							"",
+							"pm.test(\"Each cycle.id must be a string\", function () {",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.cycles).to.be.an('array');",
+							"",
+							"    responseData.cycles.forEach(function(cycle) {",
+							"        pm.expect(cycle.id).to.be.a('string');",
+							"    });",
+							"});",
+							"",
+							"pm.test(\"The length of the 'cycles' array must be greater than or equal to 1\", function () {",
+							"    pm.expect(responseData.cycles).to.be.an('array').that.has.lengthOf.at.least(1, \"The 'cycles' array should contain at least one element\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Validate the 'created_at' field is in a valid date format\", function () {",
+							"    pm.expect(responseData).to.have.property('created_at');",
+							"    pm.expect(new Date(responseData.created_at).getTime()).to.not.be.NaN;",
+							"});",
+							"",
+							"pm.test(\"Total Incomes, Total Expenses, Net Income, Planned Total Incomes, Planned Total Expenses, and Planned Net Income are non-negative integers\", function () {",
+							"    const numericFields = [",
+							"        responseData.total_incomes,",
+							"        responseData.total_expenses,",
+							"        responseData.net_income,",
+							"        responseData.planned_total_incomes,",
+							"        responseData.planned_total_expenses,",
+							"        responseData.planned_net_income",
+							"    ];",
+							"",
+							"    numericFields.forEach(field => {",
+							"        pm.expect(field).to.be.a('number').and.to.be.at.least(0, \"Value should be non-negative\");",
+							"    });",
+							"});",
+							"",
+							"pm.test(\"Response contains the key 'title'\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.property('title');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response time is less than 300ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(300);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response body is not null\", function () {",
+							"    const responseData = pm.response.json();",
+							"    pm.expect(responseData).to.not.be.null;",
+							"});",
+							"",
+							"",
+							"pm.test(\"Validate that 'is_archived' is a boolean value\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.is_archived).to.be.a('boolean');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Ensure 'user' is a non-negative integer\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.user).to.be.a('number').and.to.satisfy(function (value) {",
+							"        return Number.isInteger(value) && value >= 0;",
+							"    }, \"User must be a non-negative integer\");",
+							"});",
+							"",
+							"pm.test(\"Schema is valid\", function () {",
+							"  var schema = {",
+							"    type: \"object\",",
+							"    properties: {",
+							"      id: { type: \"string\" },",
+							"      title: { type: \"string\" },",
+							"      user: { type: \"integer\" },",
+							"      is_archived: { type: \"boolean\" },",
+							"      created_at: { type: \"string\", format: \"date-time\" },",
+							"      total_incomes: { type: \"number\" },",
+							"      total_expenses: { type: \"number\" },",
+							"      net_income: { type: \"number\" },",
+							"      planned_total_incomes: { type: \"number\" },",
+							"      planned_total_expenses: { type: \"number\" },",
+							"      planned_net_income: { type: \"number\" },",
+							"      cycles: {",
+							"        type: \"array\",",
+							"        items: {",
+							"          type: \"object\",",
+							"          properties: {",
+							"            id: { type: \"string\" },",
+							"            month: { type: \"integer\" },",
+							"            name: { type: \"string\" },",
+							"            period: {",
+							"              type: \"object\",",
+							"              properties: {",
+							"                id: { type: \"string\" },",
+							"                title: { type: \"string\" }",
+							"              },",
+							"              required: [\"id\", \"title\"]",
+							"            },",
+							"            total_incomes: { type: \"number\" },",
+							"            total_expenses: { type: \"number\" },",
+							"            net_income: { type: \"number\" },",
+							"            planned_total_incomes: { type: \"number\" },",
+							"            planned_total_expenses: { type: \"number\" },",
+							"            planned_net_income: { type: \"number\" },",
+							"            income_difference_value: { type: \"number\" },",
+							"            income_difference_percentage: { type: \"number\" },",
+							"            expense_difference_value: { type: \"number\" },",
+							"            expense_difference_percentage: { type: \"number\" },",
+							"            net_income_difference_value: { type: \"number\" },",
+							"            net_income_difference_percentage: { type: \"number\" }",
+							"          },",
+							"          required: [\"id\", \"month\", \"name\", \"period\"]",
+							"        }",
+							"      },",
+							"      expense_difference_value: { type: \"number\" },",
+							"      expense_difference_percentage: { type: \"number\" },",
+							"      income_difference_value: { type: \"number\" },",
+							"      income_difference_percentage: { type: \"number\" },",
+							"      net_income_difference_value: { type: \"number\" },",
+							"      net_income_difference_percentage: { type: \"number\" }",
+							"    },",
+							"    required: [\"id\", \"title\", \"user\", \"is_archived\", \"created_at\", \"total_incomes\", \"total_expenses\", \"net_income\", \"planned_total_incomes\", \"planned_total_expenses\", \"planned_net_income\", \"cycles\"]",
+							"  };",
+							"",
+							"  var response = pm.response.json();",
+							"  pm.expect(tv4.validate(response, schema)).to.be.true;",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{firebase_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": {{periodTitle}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/finance/periods/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"finance",
+						"periods",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Cycles",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response is an array with at least one element\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response is an array and contains the required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+							"",
+							"    responseData.forEach(item => {",
+							"        pm.expect(item).to.be.an('object');",
+							"        pm.expect(item).to.have.all.keys(",
+							"            'id', ",
+							"            'month', ",
+							"            'name', ",
+							"            'period', ",
+							"            'total_incomes', ",
+							"            'total_expenses', ",
+							"            'net_income', ",
+							"            'planned_total_incomes', ",
+							"            'planned_total_expenses', ",
+							"            'planned_net_income', ",
+							"            'income_difference_value', ",
+							"            'income_difference_percentage', ",
+							"            'expense_difference_value', ",
+							"            'expense_difference_percentage', ",
+							"            'net_income_difference_value', ",
+							"            'net_income_difference_percentage'",
+							"        );",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Month is a valid integer (greater than or equal to 0)\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+							"    ",
+							"    responseData.forEach(item => {",
+							"        pm.expect(item.month).to.be.a('number').that.is.at.least(0);",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response is an array and each item contains a period object with the required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+							"",
+							"    responseData.forEach(item => {",
+							"        pm.expect(item.period).to.exist.and.to.be.an('object');",
+							"        pm.expect(item.period.id).to.exist;",
+							"    });",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{firebase_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer <firebase_token>",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/finance/cycles/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"finance",
+						"cycles",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Categories",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200 and response time is less than 200ms\", function () {",
+							"  pm.response.to.have.status(200);",
+							"  pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Response contains the required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+							"    ",
+							"    responseData.forEach(item => {",
+							"        pm.expect(item).to.have.all.keys('id', 'name', 'code', 'description');",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Validate that the 'id' is a non-negative integer\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('array');",
+							"    responseData.forEach(function(item) {",
+							"        pm.expect(item.id).to.be.a('number').and.to.be.at.least(0, \"ID should be a non-negative integer\");",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Validate that name, code, and description are non-empty strings\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+							"",
+							"    responseData.forEach(item => {",
+							"        pm.expect(item.name).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Name should not be empty\");",
+							"        pm.expect(item.code).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Code should not be empty\");",
+							"        pm.expect(item.description).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Description should not be empty\");",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response headers include 'Content-Type' as 'application/json'\", function () {",
+							"    pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response is an array with the expected structure and at least one element\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+							"    ",
+							"    responseData.forEach(item => {",
+							"        pm.expect(item).to.be.an('object');",
+							"        pm.expect(item).to.include.all.keys('id', 'name', 'code', 'description');",
+							"        pm.expect(item.id).to.be.a('number');",
+							"        pm.expect(item.name).to.be.a('string');",
+							"        pm.expect(item.code).to.be.a('string');",
+							"        pm.expect(item.description).to.be.a('string');",
+							"    });",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{firebase_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{firebase_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/finance/categories/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"finance",
+						"categories",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Categories",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response status code is 201 and response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response).to.have.status(201);",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Response has the required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.all.keys('id', 'name', 'code', 'description');",
+							"});",
+							"",
+							"",
+							"pm.test(\"ID is a non-negative integer\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.id).to.be.a('number').and.to.be.at.least(0);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Name must be a non-empty string\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.name).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response headers include 'Content-Type' as 'application/json'\", function () {",
+							"    pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Description is a string and can be empty\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.have.property('description').that.is.a('string');",
+							"});",
+							"",
+							"",
+							"const responseJson = pm.response.json();",
+							"pm.environment.set(\"category_name\", responseJson.name);",
+							"pm.environment.set(\"category_id\", responseJson.id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer <firebase_token>",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{$randomWord}}\",\n  \"description\": \"{{$randomText}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/finance/categories/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"finance",
+						"categories",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Periods",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"",
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.eql(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response is an array with at least one element\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+							"});",
+							"",
+							"",
+							"pm.test(\"Validate the schema for each object in the response\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+							"",
+							"    responseData.forEach(item => {",
+							"        pm.expect(item).to.be.an('object');",
+							"        pm.expect(item).to.have.all.keys('id', 'title', 'user', 'is_archived', 'created_at', 'total_incomes', 'total_expenses', 'net_income', 'planned_total_incomes', 'planned_total_expenses', 'planned_net_income', 'cycles', 'expense_difference_value', 'expense_difference_percentage', 'income_difference_value', 'income_difference_percentage', 'net_income_difference_value', 'net_income_difference_percentage');",
+							"",
+							"        pm.expect(item.id).to.be.a('string');",
+							"        pm.expect(item.title).to.be.a('string');",
+							"        pm.expect(item.user).to.be.a('number');",
+							"        pm.expect(item.is_archived).to.be.a('boolean');",
+							"        pm.expect(item.created_at).to.be.a('string');",
+							"        pm.expect(item.total_incomes).to.be.a('number');",
+							"        pm.expect(item.total_expenses).to.be.a('number');",
+							"        pm.expect(item.net_income).to.be.a('number');",
+							"        pm.expect(item.planned_total_incomes).to.be.a('number');",
+							"        pm.expect(item.planned_total_expenses).to.be.a('number');",
+							"        pm.expect(item.planned_net_income).to.be.a('number');",
+							"        pm.expect(item.expense_difference_value).to.be.a('number');",
+							"        pm.expect(item.expense_difference_percentage).to.be.a('number');",
+							"        pm.expect(item.income_difference_value).to.be.a('number');",
+							"        pm.expect(item.income_difference_percentage).to.be.a('number');",
+							"        pm.expect(item.net_income_difference_value).to.be.a('number');",
+							"        pm.expect(item.net_income_difference_percentage).to.be.a('number');",
+							"",
+							"        pm.expect(item.cycles).to.be.an('array');",
+							"",
+							"        item.cycles.forEach(cycle => {",
+							"            pm.expect(cycle).to.be.an('object');",
+							"            pm.expect(cycle).to.have.all.keys('id', 'month', 'name', 'period', 'total_incomes', 'total_expenses', 'net_income', 'planned_total_incomes', 'planned_total_expenses', 'planned_net_income', 'income_difference_value', 'income_difference_percentage', 'expense_difference_value', 'expense_difference_percentage', 'net_income_difference_value', 'net_income_difference_percentage');",
+							"",
+							"            pm.expect(cycle.id).to.be.a('string');",
+							"            pm.expect(cycle.month).to.be.a('number');",
+							"            pm.expect(cycle.name).to.be.a('string');",
+							"            pm.expect(cycle.period).to.be.an('object');",
+							"            pm.expect(cycle.period).to.have.all.keys('id', 'title');",
+							"            pm.expect(cycle.period.id).to.be.a('string');",
+							"            pm.expect(cycle.period.title).to.be.a('string');",
+							"            pm.expect(cycle.total_incomes).to.be.a('number');",
+							"            pm.expect(cycle.total_expenses).to.be.a('number');",
+							"            pm.expect(cycle.net_income).to.be.a('number');",
+							"            pm.expect(cycle.planned_total_incomes).to.be.a('number');",
+							"            pm.expect(cycle.planned_total_expenses).to.be.a('number');",
+							"            pm.expect(cycle.planned_net_income).to.be.a('number');",
+							"            pm.expect(cycle.income_difference_value).to.be.a('number');",
+							"            pm.expect(cycle.income_difference_percentage).to.be.a('number');",
+							"            pm.expect(cycle.expense_difference_value).to.be.a('number');",
+							"            pm.expect(cycle.expense_difference_percentage).to.be.a('number');",
+							"            pm.expect(cycle.net_income_difference_value).to.be.a('number');",
+							"            pm.expect(cycle.net_income_difference_percentage).to.be.a('number');",
+							"        });",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"The 'is_archived' property should be a boolean value\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('array');",
+							"    responseData.forEach(item => {",
+							"        pm.expect(item.is_archived).to.be.a('boolean');",
+							"    });",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer <firebase_token>",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/finance/periods/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"finance",
+						"periods",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Period",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"",
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.eql(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Validate the presence of required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.all.keys('id', 'title', 'user', 'is_archived', 'created_at', 'total_incomes', 'total_expenses', 'net_income');",
+							"});",
+							"",
+							"",
+							"pm.test(\"The cycles array must be present and contain at least one element\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.cycles).to.exist.and.to.be.an('array').that.is.not.empty;",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Response should contain required properties\", function () {",
+							"    const responseData = pm.response.json();",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.all.keys(\"id\", \"title\", \"user\", \"is_archived\", \"created_at\", \"total_incomes\", \"total_expenses\", \"net_income\", \"planned_total_incomes\", \"planned_total_expenses\", \"planned_net_income\", \"cycles\", \"expense_difference_value\", \"expense_difference_percentage\", \"income_difference_value\", \"income_difference_percentage\", \"net_income_difference_value\", \"net_income_difference_percentage\");",
+							"    ",
+							"    pm.expect(responseData.cycles).to.be.an('array').that.is.not.empty;",
+							"    responseData.cycles.forEach(cycle => {",
+							"        pm.expect(cycle).to.have.all.keys(\"id\", \"month\", \"name\", \"period\", \"total_incomes\", \"total_expenses\", \"net_income\");",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Numerical values should be non-negative integers\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    const numericalFields = [",
+							"        'total_incomes',",
+							"        'total_expenses',",
+							"        'net_income',",
+							"        'planned_total_incomes',",
+							"        'planned_total_expenses',",
+							"        'planned_net_income',",
+							"        'expense_difference_value',",
+							"        'expense_difference_percentage',",
+							"        'income_difference_value',",
+							"        'income_difference_percentage',",
+							"        'net_income_difference_value',",
+							"        'net_income_difference_percentage'",
+							"    ];",
+							"",
+							"    numericalFields.forEach(field => {",
+							"        pm.expect(responseData[field]).to.be.a('number').and.to.be.at.least(0, `${field} should be a non-negative integer`);",
+							"    });",
+							"",
+							"    responseData.cycles.forEach(cycle => {",
+							"        numericalFields.forEach(field => {",
+							"            pm.expect(cycle[field]).to.be.a('number').and.to.be.at.least(0, `${field} in cycles should be a non-negative integer`);",
+							"        });",
+							"    });",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer <firebase_token>",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/finance/periods/{{periodId}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"finance",
+						"periods",
+						"{{periodId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Financial Records",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();",
+							"pm.environment.set(\"financialRecordsId\", responseJson.id);",
+							"pm.test(\"Response status code is 201\", function () {",
+							"    pm.expect(pm.response.code).to.eql(201);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response has the required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.all.keys('id', 'period', 'cycle', 'category', 'category_name', 'category_code', 'current_amount', 'planned_amount', 'type_choice', 'date', 'created_at', 'updated_at', 'diff_planned_actual');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Category is a non-negative integer\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.have.property('category');",
+							"    pm.expect(responseData.category).to.be.a('number').and.to.be.at.least(0);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Amounts are in a valid numeric format\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.current_amount).to.exist.and.to.satisfy(amount => !isNaN(amount) && Number(amount) >= 0, \"Current amount should be a valid non-negative number\");",
+							"    pm.expect(responseData.planned_amount).to.exist.and.to.satisfy(amount => !isNaN(amount) && Number(amount) >= 0, \"Planned amount should be a valid non-negative number\");",
+							"    pm.expect(responseData.diff_planned_actual).to.exist.and.to.satisfy(diff => !isNaN(diff), \"Difference should be a valid number\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Created_at and updated_at should be in a valid date format\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.created_at).to.satisfy(date => !isNaN(new Date(date).getTime()), \"Created_at is not a valid date\");",
+							"    pm.expect(responseData.updated_at).to.satisfy(date => !isNaN(new Date(date).getTime()), \"Updated_at is not a valid date\");",
+							"});",
+							"const responseData = pm.response.json();",
+							"pm.environment.set(\"financialRecordId\", responseData.id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer <firebase_token>",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"period\": \"{{periodId}}\",\n  \"cycle\": \"{{cycleId_1}}\",\n  \"category\": \"{{category_id}}\",\n  \"current_amount\": 200,\n  \"planned_amount\": 100,\n  \"type_choice\": \"income\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/finance/financial_records/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"finance",
+						"financial_records",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Financial Records",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.eql(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response has the required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.all.keys('id', 'period', 'cycle', 'category', 'category_name', 'category_code', 'current_amount', 'planned_amount', 'type_choice', 'date', 'created_at', 'updated_at', 'diff_planned_actual');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Category is a non-negative integer\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.category).to.be.a('number').and.to.be.at.least(0, \"Category should be a non-negative integer\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Current amount and Planned amount are in valid numeric format\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.current_amount).to.satisfy(amount => typeof amount === 'number' || !isNaN(amount), \"Current amount should be a valid number\");",
+							"    pm.expect(responseData.planned_amount).to.satisfy(amount => typeof amount === 'number' || !isNaN(amount), \"Planned amount should be a valid number\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Date is in a valid date format\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.date).to.match(/^\\d{4}-\\d{2}-\\d{2}$/, \"Date format should be YYYY-MM-DD\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer <firebase_token>",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/finance/financial_records/{{financialRecordId}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"finance",
+						"financial_records",
+						"{{financialRecordId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Financial Records",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.eql(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response has the required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.all.keys('id', 'period', 'cycle', 'category', 'category_name', 'category_code', 'current_amount', 'planned_amount', 'type_choice', 'date', 'created_at', 'updated_at', 'diff_planned_actual');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Category is a non-negative integer\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.category).to.be.a('number').and.to.be.at.least(0);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Current amount and Planned amount are in a valid numeric format\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    ",
+							"    [responseData.current_amount, responseData.planned_amount].forEach(amount => {",
+							"        pm.expect(amount).to.satisfy(value => {",
+							"            return typeof value === 'number' || !isNaN(parseFloat(value));",
+							"        }, \"Value should be a valid numeric format\");",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Created_at and updated_at are in a valid date format\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.created_at).to.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$/, \"Created_at should be in ISO 8601 format\");",
+							"    pm.expect(responseData.updated_at).to.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$/, \"Updated_at should be in ISO 8601 format\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer <firebase_token>",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"planned_amount\": 101\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/finance/financial_records/{{financialRecordsId}}/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"finance",
+						"financial_records",
+						"{{financialRecordsId}}",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Financial Records",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 405\", function () {",
+							"    pm.expect(pm.response.code).to.equal(405);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response has the correct Content-Type header\", function () {",
+							"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('application/json');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response body is a valid JSON object\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response body contains a 'detail' field\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.property('detail');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer <firebase_token>",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/finance/financial_records/{{financialRecordId}}/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"finance",
+						"financial_records",
+						"{{financialRecordId}}",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Period Summary",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response has the required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.all.keys('period', 'total_incomes', 'total_expenses', 'net_income', 'planned_total_incomes', 'planned_total_expenses', 'planned_net_income');",
+							"});",
+							"",
+							"",
+							"pm.test(\"All income and expense fields are in a valid numeric format\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    ",
+							"    const numericFields = [",
+							"        'total_incomes',",
+							"        'total_expenses',",
+							"        'net_income',",
+							"        'planned_total_incomes',",
+							"        'planned_total_expenses',",
+							"        'planned_net_income'",
+							"    ];",
+							"    ",
+							"    numericFields.forEach(field => {",
+							"        pm.expect(responseData[field]).to.satisfy(value => {",
+							"            return !isNaN(value) && value !== null && value !== '';",
+							"        }, `${field} should be a valid numeric format`);",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Net income is calculated correctly\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.total_incomes).to.exist.and.to.be.a('string');",
+							"    pm.expect(responseData.total_expenses).to.exist.and.to.be.a('string');",
+							"    pm.expect(responseData.net_income).to.exist.and.to.be.a('string');",
+							"",
+							"    const totalIncomes = parseFloat(responseData.total_incomes) || 0;",
+							"    const totalExpenses = parseFloat(responseData.total_expenses) || 0;",
+							"    const calculatedNetIncome = totalIncomes - totalExpenses;",
+							"",
+							"    pm.expect(parseFloat(responseData.net_income)).to.equal(calculatedNetIncome);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer <firebase_token>",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/finance/periods/a18d7ce8-6bb4-4876-8747-0aac8e7d808c/summary",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"finance",
+						"periods",
+						"a18d7ce8-6bb4-4876-8747-0aac8e7d808c",
+						"summary"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Period",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Response status code is 204\", function () {",
+							"  pm.response.to.have.status(204);",
+							"});",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"  pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Response body is empty for a successful DELETE request\", function () {",
+							"    pm.expect(pm.response.text()).to.be.empty;",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response headers contain 'Content-Type' as 'text/xml'\", function () {",
+							"    pm.expect(pm.response.headers.get('Content-Type')).to.eql('text/xml');",
+							"});",
+							"",
+							"",
+							"",
+							"",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer <firebase_token>",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/finance/periods/{{periodId}}/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"finance",
+						"periods",
+						"{{periodId}}",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Cycle",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"",
+							"// Send a request to create a new period before the main request",
+							"pm.sendRequest({",
+							"    url: 'http://localhost:8000/finance/periods/',",
+							"    method: 'POST',",
+							"    header: {",
+							"        'Content-Type': 'application/json',",
+							"        'Authorization': 'Bearer ' + pm.environment.get('firebase_token') // se você precisar de auth",
+							"    },",
+							"    body: {",
+							"        mode: 'raw',",
+							"        raw: JSON.stringify({ title: 1915 })",
+							"    }",
+							"}, function (err, res) {",
+							"    if (err) {",
+							"        console.error('Error creating period:', err);",
+							"        return;",
+							"    }",
+							"",
+							"    // Pega o ID do período criado da resposta",
+							"    const period = res.json();",
+							"    console.log('Period created successfully:', period);",
+							"",
+							"    // Armazena o ID em uma variável de ambiente",
+							"    if (period && period.id) {",
+							"        pm.environment.set('periodId', period.id);",
+							"        console.log('Period ID saved to environment variable:', period.id);",
+							"    } else {",
+							"        console.error('Period ID not found in response');",
+							"    }",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"",
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response has the required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.all.keys(",
+							"        'id', ",
+							"        'month', ",
+							"        'name', ",
+							"        'period', ",
+							"        'total_incomes', ",
+							"        'total_expenses', ",
+							"        'net_income', ",
+							"        'planned_total_incomes', ",
+							"        'planned_total_expenses', ",
+							"        'planned_net_income', ",
+							"        'income_difference_value', ",
+							"        'income_difference_percentage', ",
+							"        'expense_difference_value', ",
+							"        'expense_difference_percentage', ",
+							"        'net_income_difference_value', ",
+							"        'net_income_difference_percentage'",
+							"    );",
+							"});",
+							"",
+							"",
+							"pm.test(\"The Period object contains required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.period).to.exist;",
+							"    ",
+							"    pm.expect(responseData.period).to.have.all.keys('id', 'title');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Numeric fields are non-negative integers\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    const numericFields = [",
+							"        'month',",
+							"        'total_incomes',",
+							"        'total_expenses',",
+							"        'net_income',",
+							"        'planned_total_incomes',",
+							"        'planned_total_expenses',",
+							"        'planned_net_income',",
+							"        'income_difference_value',",
+							"        'income_difference_percentage',",
+							"        'expense_difference_value',",
+							"        'expense_difference_percentage',",
+							"        'net_income_difference_value',",
+							"        'net_income_difference_percentage'",
+							"    ];",
+							"",
+							"    numericFields.forEach(field => {",
+							"        pm.expect(responseData[field]).to.be.a('number').and.to.be.at.least(0, `${field} should be a non-negative integer`);",
+							"    });",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer <firebase_token>",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/finance/cycles/{{cycleId_1}}/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"finance",
+						"cycles",
+						"{{cycleId_1}}",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{firebase_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
