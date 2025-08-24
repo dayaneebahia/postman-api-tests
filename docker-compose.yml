@@ -1,80 +1,45 @@
-name: Run Postman API Tests
+version: '3.9'
 
-on:
-  push:
-    branches:
-      - develop
-  pull_request:
-    branches:
-      - develop
+services:
+  db:
+    image: postgres:14
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_DB: gradiafinance
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
 
-jobs:
-  postman-tests:
-    runs-on: ubuntu-latest
+  gradiafinance:
+    build: ./gradia_api    # <-- monta a API direto do repositório clonado
+    container_name: django_app
+    restart: always
+    volumes:
+      - ./gradia_api:/app
+      - ./gradia_api/gradiafinance/config:/app/config
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./gradia_api/.env
+    environment:
+      - DEBUG=True
+      - DB_NAME=gradiafinance
+      - DB_USER=postgres
+      - DB_PASSWORD=admin
+      - DB_HOST=db
+      - DB_PORT=5432
+      - FIREBASE_CREDENTIALS=/app/config/gradia-dev-firebase-adminsdk.json
 
-    steps:
-      # 1. Checkout do repositório de testes
-      - name: Checkout Tests Repository
-        uses: actions/checkout@v3
-
-      # 2. Clona sempre a branch develop da API
-      - name: Clone API Repository (develop)
-        run: |
-          git clone --branch develop --single-branch https://github.com/dayaneebahia/gradia_api.git
-
-      # 3. Instala o Docker Compose
-      - name: Set up Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
-
-      # 4. Sobe os containers (API + DB) via Docker
-      - name: Build and start API via Docker Compose
-        run: |
-          docker-compose up -d --build
-          echo "Waiting for API to be ready..."
-          until curl -s http://localhost:8000/finance/cycles/ > /dev/null; do
-            echo "Waiting for API..."
-            sleep 5
-          done
-
-      # 5. Instala Node.js
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      # 6. Instala Newman
-      - name: Install Newman
-        run: npm install -g newman
-
-      # 7. Roda os testes do Postman
-      - name: Run Postman Collection
-        run: |
-          newman run collections/Finance\ API.postman_collection.json \
-          -e collections/DEV.postman_environment.json \
-          --reporters cli,junit \
-          --reporter-junit-export results.xml
-        continue-on-error: true  # <-- Continua mesmo que testes falhem
-
-      # 8. Faz upload do relatório como artefato
-      - name: Upload Test Results as Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: postman-results
-          path: results.xml
-        if: always()  # <-- Sempre faz upload, mesmo se falhar
-
-      # 9. Publica o relatório JUnit para visualização na aba "Actions"
-      - name: Publish JUnit Report
-        uses: dorny/test-reporter@v1
-        with:
-          name: Postman API Tests
-          path: results.xml
-          reporter: jest-junit
-        if: always()
-
-      # 10. Para e remove os containers no final
-      - name: Stop and remove Docker containers
-        run: docker-compose down
-        if: always()
+volumes:
+  pgdata:
