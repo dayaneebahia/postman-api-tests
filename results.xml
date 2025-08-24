@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Finance API" tests="14" time="1.332">
+  <testsuite name="Get Token" id="1d1be437-1c58-4df9-8e32-f4058594ed6f" timestamp="2025-08-24T19:30:48.779Z" tests="5" failures="0" errors="0" time="0.284">
+    <testcase name="Response status code is 200" time="0.284" classname="GetToken"/>
+    <testcase name="Response has the required fields" time="0.284" classname="GetToken"/>
+    <testcase name="Email is in a valid format" time="0.284" classname="GetToken"/>
+    <testcase name="Registered field is a boolean" time="0.284" classname="GetToken"/>
+    <testcase name="ExpiresIn should be a positive integer" time="0.284" classname="GetToken"/>
+  </testsuite>
+  <testsuite name="Period" id="fe284b58-d341-4729-8e83-17a7ad4f2846" timestamp="2025-08-24T19:30:48.779Z" tests="15" failures="0" errors="0" time="0.189">
+    <testcase name="Response status code is 201" time="0.189" classname="Period"/>
+    <testcase name="The 'id' must be a non-empty string" time="0.189" classname="Period"/>
+    <testcase name="The 'cycles' array should not be empty" time="0.189" classname="Period"/>
+    <testcase name="Ensure all 'cycle.id' values are unique" time="0.189" classname="Period"/>
+    <testcase name="Each cycle.id must be a string" time="0.189" classname="Period"/>
+    <testcase name="The length of the 'cycles' array must be greater than or equal to 1" time="0.189" classname="Period"/>
+    <testcase name="Response time is less than 200ms" time="0.189" classname="Period"/>
+    <testcase name="Validate the 'created_at' field is in a valid date format" time="0.189" classname="Period"/>
+    <testcase name="Total Incomes, Total Expenses, Net Income, Planned Total Incomes, Planned Total Expenses, and Planned Net Income are non-negative integers" time="0.189" classname="Period"/>
+    <testcase name="Response contains the key 'title'" time="0.189" classname="Period"/>
+    <testcase name="Response time is less than 300ms" time="0.189" classname="Period"/>
+    <testcase name="Response body is not null" time="0.189" classname="Period"/>
+    <testcase name="Validate that 'is_archived' is a boolean value" time="0.189" classname="Period"/>
+    <testcase name="Ensure 'user' is a non-negative integer" time="0.189" classname="Period"/>
+    <testcase name="Schema is valid" time="0.189" classname="Period"/>
+  </testsuite>
+  <testsuite name="List Cycles" id="cbb17b40-8914-4e99-a069-cb70c77044cb" timestamp="2025-08-24T19:30:48.779Z" tests="5" failures="0" errors="0" time="0.175">
+    <testcase name="Response status code is 200" time="0.175" classname="ListCycles"/>
+    <testcase name="Response is an array with at least one element" time="0.175" classname="ListCycles"/>
+    <testcase name="Response is an array and contains the required fields" time="0.175" classname="ListCycles"/>
+    <testcase name="Month is a valid integer (greater than or equal to 0)" time="0.175" classname="ListCycles"/>
+    <testcase name="Response is an array and each item contains a period object with the required fields" time="0.175" classname="ListCycles"/>
+  </testsuite>
+  <testsuite name="List Categories" id="f8a7d859-d7fc-41b0-a3b2-ff5c8c1ee6c8" timestamp="2025-08-24T19:30:48.779Z" tests="6" failures="0" errors="0" time="0.052">
+    <testcase name="Response status code is 200 and response time is less than 200ms" time="0.052" classname="ListCategories"/>
+    <testcase name="Response contains the required fields" time="0.052" classname="ListCategories"/>
+    <testcase name="Validate that the 'id' is a non-negative integer" time="0.052" classname="ListCategories"/>
+    <testcase name="Validate that name, code, and description are non-empty strings" time="0.052" classname="ListCategories"/>
+    <testcase name="Response headers include 'Content-Type' as 'application/json'" time="0.052" classname="ListCategories"/>
+    <testcase name="Response is an array with the expected structure and at least one element" time="0.052" classname="ListCategories"/>
+  </testsuite>
+  <testsuite name="Create Categories" id="a940b03b-c254-4f40-be6a-914a7aa4f5f3" timestamp="2025-08-24T19:30:48.779Z" tests="6" failures="0" errors="0" time="0.051">
+    <testcase name="Response status code is 201 and response time is less than 200ms" time="0.051" classname="CreateCategories"/>
+    <testcase name="Response has the required fields" time="0.051" classname="CreateCategories"/>
+    <testcase name="ID is a non-negative integer" time="0.051" classname="CreateCategories"/>
+    <testcase name="Name must be a non-empty string" time="0.051" classname="CreateCategories"/>
+    <testcase name="Response headers include 'Content-Type' as 'application/json'" time="0.051" classname="CreateCategories"/>
+    <testcase name="Description is a string and can be empty" time="0.051" classname="CreateCategories"/>
+  </testsuite>
+  <testsuite name="List Periods" id="1fd1c786-1372-4629-b67b-15426ec12249" timestamp="2025-08-24T19:30:48.779Z" tests="5" failures="0" errors="0" time="0.185">
+    <testcase name="Response status code is 200" time="0.185" classname="ListPeriods"/>
+    <testcase name="Response time is less than 200ms" time="0.185" classname="ListPeriods"/>
+    <testcase name="Response is an array with at least one element" time="0.185" classname="ListPeriods"/>
+    <testcase name="Validate the schema for each object in the response" time="0.185" classname="ListPeriods"/>
+    <testcase name="The 'is_archived' property should be a boolean value" time="0.185" classname="ListPeriods"/>
+  </testsuite>
+  <testsuite name="Period" id="4780568b-0f86-4845-bc2a-6e4976ed4709" timestamp="2025-08-24T19:30:48.779Z" tests="6" failures="2" errors="0" time="0.071">
+    <testcase name="Response status code is 200" time="0.071" classname="Period"/>
+    <testcase name="Validate the presence of required fields" time="0.071" classname="Period">
+      <failure type="AssertionFailure" message="expected { …(18) } to have keys 'id', 'title', 'user', 'is_archived', 'created_at', 'total_incomes', 'total_expenses', and 'net_income'">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Period.]]>
+        <![CDATA[Test description: Validate the presence of required fields.]]>
+        <![CDATA[Error message: expected { …(18) } to have keys 'id', 'title', 'user', 'is_archived', 'created_at', 'total_incomes', 'total_expenses', and 'net_income'.]]>
+        <![CDATA[Stacktrace: AssertionError: expected { …(18) } to have keys 'id', 'title', 'user', 'is_archived', 'created_at', 'total_incomes', 'total_expenses', and 'net_income'
+   at Object.eval sandbox-script.js:2:7).]]>
+      </failure>
+    </testcase>
+    <testcase name="The cycles array must be present and contain at least one element" time="0.071" classname="Period"/>
+    <testcase name="Response time is less than 200ms" time="0.071" classname="Period"/>
+    <testcase name="Response should contain required properties" time="0.071" classname="Period">
+      <failure type="AssertionFailure" message="expected { …(16) } to have keys 'id', 'month', 'name', 'period', 'total_incomes', 'total_expenses', and 'net_income'">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Period.]]>
+        <![CDATA[Test description: Response should contain required properties.]]>
+        <![CDATA[Error message: expected { …(16) } to have keys 'id', 'month', 'name', 'period', 'total_incomes', 'total_expenses', and 'net_income'.]]>
+        <![CDATA[Stacktrace: AssertionError: expected { …(16) } to have keys 'id', 'month', 'name', 'period', 'total_incomes', 'total_expenses', and 'net_income'
+   at Object.eval sandbox-script.js:5:7).]]>
+      </failure>
+    </testcase>
+    <testcase name="Numerical values should be non-negative integers" time="0.071" classname="Period"/>
+  </testsuite>
+  <testsuite name="Financial Records" id="edf78a21-6f4c-40c3-a016-bb4d069c427d" timestamp="2025-08-24T19:30:48.779Z" tests="5" failures="0" errors="0" time="0.052">
+    <testcase name="Response status code is 201" time="0.052" classname="FinancialRecords"/>
+    <testcase name="Response has the required fields" time="0.052" classname="FinancialRecords"/>
+    <testcase name="Category is a non-negative integer" time="0.052" classname="FinancialRecords"/>
+    <testcase name="Amounts are in a valid numeric format" time="0.052" classname="FinancialRecords"/>
+    <testcase name="Created_at and updated_at should be in a valid date format" time="0.052" classname="FinancialRecords"/>
+  </testsuite>
+  <testsuite name="Financial Records" id="44341581-e59e-4da7-bcf2-5cc7fcc64bac" timestamp="2025-08-24T19:30:48.779Z" tests="5" failures="1" errors="0" time="0.011">
+    <testcase name="Response status code is 200" time="0.011" classname="FinancialRecords"/>
+    <testcase name="Response has the required fields" time="0.011" classname="FinancialRecords"/>
+    <testcase name="Category is a non-negative integer" time="0.011" classname="FinancialRecords"/>
+    <testcase name="Current amount and Planned amount are in valid numeric format" time="0.011" classname="FinancialRecords"/>
+    <testcase name="Date is in a valid date format" time="0.011" classname="FinancialRecords">
+      <failure type="AssertionFailure" message="Date format should be YYYY-MM-DD: expected null to match /^\d{4}-\d{2}-\d{2}$/">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Financial Records.]]>
+        <![CDATA[Test description: Date is in a valid date format.]]>
+        <![CDATA[Error message: Date format should be YYYY-MM-DD: expected null to match /^\d{4}-\d{2}-\d{2}$/.]]>
+        <![CDATA[Stacktrace: AssertionError: Date format should be YYYY-MM-DD: expected null to match /^\d{4}-\d{2}-\d{2}$/
+   at Object.eval sandbox-script.js:5:9).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Financial Records" id="fcb27431-f680-4235-a9ad-ad166cba105c" timestamp="2025-08-24T19:30:48.779Z" tests="5" failures="1" errors="0" time="0.050">
+    <testcase name="Response status code is 200" time="0.050" classname="FinancialRecords"/>
+    <testcase name="Response has the required fields" time="0.050" classname="FinancialRecords"/>
+    <testcase name="Category is a non-negative integer" time="0.050" classname="FinancialRecords"/>
+    <testcase name="Current amount and Planned amount are in a valid numeric format" time="0.050" classname="FinancialRecords"/>
+    <testcase name="Created_at and updated_at are in a valid date format" time="0.050" classname="FinancialRecords">
+      <failure type="AssertionFailure" message="Created_at should be in ISO 8601 format: expected '2025-08-24T19:30:48.882640Z' to match /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Financial Records.]]>
+        <![CDATA[Test description: Created_at and updated_at are in a valid date format.]]>
+        <![CDATA[Error message: Created_at should be in ISO 8601 format: expected '2025-08-24T19:30:48.882640Z' to match /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.]]>
+        <![CDATA[Stacktrace: AssertionError: Created_at should be in ISO 8601 format: expected '2025-08-24T19:30:48.882640Z' to match /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/
+   at Object.eval sandbox-script.js:5:10).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Financial Records" id="4cc5381e-87e4-4945-9869-3ac9f3af06a8" timestamp="2025-08-24T19:30:48.779Z" tests="5" failures="4" errors="0" time="0.049">
+    <testcase name="Response status code is 405" time="0.049" classname="FinancialRecords">
+      <failure type="AssertionFailure" message="expected 204 to equal 405">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Financial Records.]]>
+        <![CDATA[Test description: Response status code is 405.]]>
+        <![CDATA[Error message: expected 204 to equal 405.]]>
+        <![CDATA[Stacktrace: AssertionError: expected 204 to equal 405
+   at Object.eval sandbox-script.js:1:11).]]>
+      </failure>
+    </testcase>
+    <testcase name="Response has the correct Content-Type header" time="0.049" classname="FinancialRecords">
+      <failure type="AssertionFailure" message="expected undefined to equal 'application/json'">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Financial Records.]]>
+        <![CDATA[Test description: Response has the correct Content-Type header.]]>
+        <![CDATA[Error message: expected undefined to equal 'application/json'.]]>
+        <![CDATA[Stacktrace: AssertionError: expected undefined to equal 'application/json'
+   at Object.eval sandbox-script.js:2:11).]]>
+      </failure>
+    </testcase>
+    <testcase name="Response body is a valid JSON object" time="0.049" classname="FinancialRecords">
+      <failure type="AssertionFailure" message="No data, empty input at 1:1&#xA;&#xA;^">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Financial Records.]]>
+        <![CDATA[Test description: Response body is a valid JSON object.]]>
+        <![CDATA[Error message: No data, empty input at 1:1
+
+^.]]>
+        <![CDATA[Stacktrace: JSONError: No data, empty input at 1:1
+
+^
+   at Object.eval sandbox-script.js:3:11).]]>
+      </failure>
+    </testcase>
+    <testcase name="Response body contains a 'detail' field" time="0.049" classname="FinancialRecords">
+      <failure type="AssertionFailure" message="No data, empty input at 1:1&#xA;&#xA;^">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Financial Records.]]>
+        <![CDATA[Test description: Response body contains a 'detail' field.]]>
+        <![CDATA[Error message: No data, empty input at 1:1
+
+^.]]>
+        <![CDATA[Stacktrace: JSONError: No data, empty input at 1:1
+
+^
+   at Object.eval sandbox-script.js:4:11).]]>
+      </failure>
+    </testcase>
+    <testcase name="Response time is less than 200ms" time="0.049" classname="FinancialRecords"/>
+  </testsuite>
+  <testsuite name="Period Summary" id="a78f0da5-2544-4f3b-8227-20c2c4454599" timestamp="2025-08-24T19:30:48.779Z" tests="5" failures="4" errors="0" time="0.011">
+    <testcase name="Response status code is 200" time="0.011" classname="PeriodSummary">
+      <failure type="AssertionFailure" message="expected 404 to equal 200">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Period Summary.]]>
+        <![CDATA[Test description: Response status code is 200.]]>
+        <![CDATA[Error message: expected 404 to equal 200.]]>
+        <![CDATA[Stacktrace: AssertionError: expected 404 to equal 200
+   at Object.eval sandbox-script.js:1:12).]]>
+      </failure>
+    </testcase>
+    <testcase name="Response has the required fields" time="0.011" classname="PeriodSummary">
+      <failure type="AssertionFailure" message="expected { error: 'Period not found.' } to have keys 'period', 'total_incomes', 'total_expenses', 'net_income', 'planned_total_incomes', 'planned_total_expenses', and 'planned_net_income'">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Period Summary.]]>
+        <![CDATA[Test description: Response has the required fields.]]>
+        <![CDATA[Error message: expected { error: 'Period not found.' } to have keys 'period', 'total_incomes', 'total_expenses', 'net_income', 'planned_total_incomes', 'planned_total_expenses', and 'planned_net_income'.]]>
+        <![CDATA[Stacktrace: AssertionError: expected { error: 'Period not found.' } to have keys 'period', 'total_incomes', 'total_expenses', 'net_income', 'planned_total_incomes', 'planned_total_expenses', and 'planned_net_income'
+   at Object.eval sandbox-script.js:2:12).]]>
+      </failure>
+    </testcase>
+    <testcase name="All income and expense fields are in a valid numeric format" time="0.011" classname="PeriodSummary">
+      <failure type="AssertionFailure" message="total_incomes should be a valid numeric format: expected undefined to satisfy [Function]">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Period Summary.]]>
+        <![CDATA[Test description: All income and expense fields are in a valid numeric format.]]>
+        <![CDATA[Error message: total_incomes should be a valid numeric format: expected undefined to satisfy [Function].]]>
+        <![CDATA[Stacktrace: AssertionError: total_incomes should be a valid numeric format: expected undefined to satisfy [Function]
+   at Object.eval sandbox-script.js:3:12).]]>
+      </failure>
+    </testcase>
+    <testcase name="Net income is calculated correctly" time="0.011" classname="PeriodSummary">
+      <failure type="AssertionFailure" message="expected undefined to exist">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Period Summary.]]>
+        <![CDATA[Test description: Net income is calculated correctly.]]>
+        <![CDATA[Error message: expected undefined to exist.]]>
+        <![CDATA[Stacktrace: AssertionError: expected undefined to exist
+   at Object.eval sandbox-script.js:4:12).]]>
+      </failure>
+    </testcase>
+    <testcase name="Response time is less than 200ms" time="0.011" classname="PeriodSummary"/>
+  </testsuite>
+  <testsuite name="Period" id="0bea4c93-cd84-4e70-8d4e-4ee882c06112" timestamp="2025-08-24T19:30:48.779Z" tests="4" failures="1" errors="0" time="0.052">
+    <testcase name="Response status code is 204" time="0.052" classname="Period"/>
+    <testcase name="Response time is less than 200ms" time="0.052" classname="Period"/>
+    <testcase name="Response body is empty for a successful DELETE request" time="0.052" classname="Period"/>
+    <testcase name="Response headers contain 'Content-Type' as 'text/xml'" time="0.052" classname="Period">
+      <failure type="AssertionFailure" message="expected undefined to deeply equal 'text/xml'">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Period.]]>
+        <![CDATA[Test description: Response headers contain 'Content-Type' as 'text/xml'.]]>
+        <![CDATA[Error message: expected undefined to deeply equal 'text/xml'.]]>
+        <![CDATA[Stacktrace: AssertionError: expected undefined to deeply equal 'text/xml'
+   at Object.eval sandbox-script.js:4:13).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Cycle" id="1c775c63-dd98-48d5-b044-f3c1ceed6341" timestamp="2025-08-24T19:30:48.779Z" tests="5" failures="8" errors="0" time="0.050">
+    <testcase name="Response status code is 200" time="0.050" classname="Cycle">
+      <failure type="AssertionFailure" message="expected 404 to equal 200">
+        <![CDATA[Failed 2 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Cycle.]]>
+        <![CDATA[Test description: Response status code is 200.]]>
+        <![CDATA[Error message: expected 404 to equal 200.]]>
+        <![CDATA[Stacktrace: AssertionError: expected 404 to equal 200
+   at Object.eval sandbox-script.js:1:14).]]>
+      </failure>
+    </testcase>
+    <testcase name="Response time is less than 200ms" time="0.050" classname="Cycle"/>
+    <testcase name="Response has the required fields" time="0.050" classname="Cycle">
+      <failure type="AssertionFailure" message="expected { detail: 'Not found.' } to have keys 'id', 'month', 'name', 'period', 'total_incomes', 'total_expenses', 'net_income', 'planned_total_incomes', 'planned_total_expenses', 'planned_net_income', 'income_difference_value', 'income_difference_percentage', 'expense_difference_value', 'expense_difference_percentage', 'net_income_difference_value', and 'net_income_difference_percentage'">
+        <![CDATA[Failed 2 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Cycle.]]>
+        <![CDATA[Test description: Response has the required fields.]]>
+        <![CDATA[Error message: expected { detail: 'Not found.' } to have keys 'id', 'month', 'name', 'period', 'total_incomes', 'total_expenses', 'net_income', 'planned_total_incomes', 'planned_total_expenses', 'planned_net_income', 'income_difference_value', 'income_difference_percentage', 'expense_difference_value', 'expense_difference_percentage', 'net_income_difference_value', and 'net_income_difference_percentage'.]]>
+        <![CDATA[Stacktrace: AssertionError: expected { detail: 'Not found.' } to have keys 'id', 'month', 'name', 'period', 'total_incomes', 'total_expenses', 'net_income', 'planned_total_incomes', 'planned_total_expenses', 'planned_net_income', 'income_difference_value', 'income_difference_percentage', 'expense_difference_value', 'expense_difference_percentage', 'net_income_difference_value', and 'net_income_difference_percentage'
+   at Object.eval sandbox-script.js:3:14).]]>
+      </failure>
+    </testcase>
+    <testcase name="The Period object contains required fields" time="0.050" classname="Cycle">
+      <failure type="AssertionFailure" message="expected undefined to exist">
+        <![CDATA[Failed 2 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Cycle.]]>
+        <![CDATA[Test description: The Period object contains required fields.]]>
+        <![CDATA[Error message: expected undefined to exist.]]>
+        <![CDATA[Stacktrace: AssertionError: expected undefined to exist
+   at Object.eval sandbox-script.js:4:14).]]>
+      </failure>
+    </testcase>
+    <testcase name="Numeric fields are non-negative integers" time="0.050" classname="Cycle">
+      <failure type="AssertionFailure" message="expected undefined to be a number">
+        <![CDATA[Failed 2 times.]]>
+        <![CDATA[Collection JSON ID: 0bf5b84a-cbfa-4647-a5d8-14575cec94a5.]]>
+        <![CDATA[Collection name: Finance API.]]>
+        <![CDATA[Request name: Cycle.]]>
+        <![CDATA[Test description: Numeric fields are non-negative integers.]]>
+        <![CDATA[Error message: expected undefined to be a number.]]>
+        <![CDATA[Stacktrace: AssertionError: expected undefined to be a number
+   at Object.eval sandbox-script.js:5:14).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+</testsuites>

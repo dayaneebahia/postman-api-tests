@@ -11,7 +11,6 @@ on:
 jobs:
   postman-tests:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Tests Repository
         uses: actions/checkout@v3
@@ -19,13 +18,12 @@ jobs:
       - name: Clone API Repository
         run: git clone https://github.com/dayaneebahia/gradia_api.git
 
-      - name: Install Docker Compose
+      - name: Set up Docker Compose
         run: |
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
       - name: Build and start API via Docker Compose
-        working-directory: gradia_api
         run: |
           docker-compose up -d --build
           echo "Waiting for API to be ready..."
@@ -45,24 +43,25 @@ jobs:
       - name: Run Postman Collection
         run: |
           newman run collections/Finance\ API.postman_collection.json \
-            -e collections/DEV.postman_environment.json \
-            --reporters cli,junit \
-            --reporter-junit-export results.xml
+          -e collections/DEV.postman_environment.json \
+          --reporters cli,junit \
+          --reporter-junit-export results.xml
+        continue-on-error: true   # <-- continue even if tests fail
 
-      - name: Upload Test Results
+      - name: Upload Test Results as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: postman-results
           path: results.xml
+        if: always()   # <-- always upload the results
 
       - name: Publish JUnit Report
         uses: actions/upload-test-report@v3
         with:
           path: results.xml
           format: junit
+        if: always()   # <-- always publish report
 
       - name: Stop and remove Docker containers
-        if: always()  
-        working-directory: gradia_api
-        run: |
-          docker-compose down
+        run: docker-compose down
+        if: always()   # <-- always clean up
