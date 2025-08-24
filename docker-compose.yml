@@ -19,7 +19,7 @@ services:
       retries: 5
 
   gradiafinance:
-    build: ./gradia_api              # <-- usa a API clonada
+    build: ./gradia_api   # <-- aponta para o código da API clonada
     container_name: django_app
     restart: always
     volumes:
@@ -30,14 +30,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      - DEBUG=True
-      - DB_NAME=gradiafinance
-      - DB_USER=postgres
-      - DB_PASSWORD=admin
-      - DB_HOST=db
-      - DB_PORT=5432
-      - FIREBASE_CREDENTIALS=/app/config/gradia-dev-firebase-adminsdk.json
+    environment:          # <-- Variáveis de ambiente fixas
+      DEBUG: "True"
+      DB_NAME: gradiafinance
+      DB_USER: postgres
+      DB_PASSWORD: admin
+      DB_HOST: db
+      DB_PORT: 5432
+      FIREBASE_CREDENTIALS: /app/config/gradia-dev-firebase-adminsdk.json
 
 volumes:
   pgdata:
