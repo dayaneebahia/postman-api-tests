@@ -34,7 +34,7 @@ jobs:
         with:
           node-version: '18'
 
-      # 5. Instala Newman e htmlextra
+      # 5. Instala Newman + htmlextra
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
@@ -64,7 +64,7 @@ jobs:
         with:
           name: Postman API Tests
           path: results.xml
-          reporter: jest-junit   # <-- OBRIGATÓRIO agora
+          reporter: java-junit   # <-- ALTERADO para o formato correto do Newman
         if: always()
 
       # 9. Para e remove os containers no final
