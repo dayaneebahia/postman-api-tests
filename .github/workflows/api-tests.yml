@@ -34,7 +34,7 @@ jobs:
         with:
           node-version: '18'
 
-      # 5. Instala Newman (CLI do Postman)
+      # 5. Instala Newman e htmlextra
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
@@ -58,12 +58,13 @@ jobs:
             results.html
         if: always()
 
-      # 8. Publica relatório na aba Actions
+      # 8. Publica relatório JUnit na aba Actions
       - name: Publish JUnit Report
         uses: dorny/test-reporter@v1
         with:
           name: Postman API Tests
           path: results.xml
+          reporter: jest-junit   # <-- OBRIGATÓRIO agora
         if: always()
 
       # 9. Para e remove os containers no final
