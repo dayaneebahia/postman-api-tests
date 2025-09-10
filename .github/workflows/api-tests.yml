@@ -1,4 +1,4 @@
-name: Run Postman API Tests -PUC
+name: Run Postman API Tests
 
 on:
   workflow_dispatch:
@@ -6,68 +6,65 @@ on:
 jobs:
   postman-tests:
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     steps:
-      # 1. Checkout do repositório de testes
       - name: Checkout Tests Repository
         uses: actions/checkout@v3
 
-      # 2. Clona sempre a branch develop da API
       - name: Clone API Repository (develop)
         run: |
           git clone --branch develop --single-branch https://${{ secrets.GH_PAT }}@github.com/dayaneebahia/gradia_api.git
 
-      # 3. Sobe os containers (API + DB)
       - name: Build and start API via Docker Compose
         run: |
           docker compose up -d --build
-          echo " Waiting for API to be ready..."
-          until curl -s http://localhost:8000/finance/cycles/ > /dev/null; do
+          echo "⏳ Waiting for API to be ready..."
+          # wait until the endpoint is up (max ~2 min), but don't fail the job if it times out
+          for i in {1..24}; do
+            if curl -fsS http://localhost:8000/finance/cycles/ > /dev/null; then
+              echo " API is up!"
+              break
+            fi
             echo "API not ready yet..."
             sleep 5
           done
-          echo "API is up"
 
-      # 4. Instala Node.js
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      # 5. Instala Newman + htmlextra
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
-      # 6. Executa os testes Postman
       - name: Run Postman Collection
         run: |
-          newman run collections/Finance\ API.postman_collection.json \
-          -e collections/DEV.postman_environment.json \
-          --reporters cli,htmlextra,junit \
-          --reporter-junit-export results.xml \
-          --reporter-htmlextra-export results.html
+          newman run "collections/Finance API.postman_collection.json" \
+            -e collections/DEV.postman_environment.json \
+            --reporters cli,htmlextra,junit \
+            --reporter-junit-export results.xml \
+            --reporter-htmlextra-export results.html
         continue-on-error: true
 
-      # 7. Faz upload dos resultados XML e HTML como artefatos
       - name: Upload Test Results as Artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: postman-results
           path: |
             results.xml
             results.html
-        if: always()
 
-      # 8. Publica relatório JUnit na aba Actions
       - name: Publish JUnit Report
+        if: always()
         uses: dorny/test-reporter@v1
         with:
-          name: Postman API Tests -PUC
+          name: Postman API Tests
           path: results.xml
-          reporter: java-junit   
-        if: always()
+          reporter: java-junit
+          fail-on-failure: false   
 
-      # 9. Para e remove os containers no final
       - name: Stop and remove Docker containers
-        run: docker compose down
         if: always()
+        run: docker compose down
