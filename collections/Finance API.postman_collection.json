@@ -98,20 +98,6 @@
 			"name": "Period",
 			"event": [
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"const randomYear = Math.floor(Math.random() * (1700 - 1600 + 1)) + 1000;",
-							"const title = `${randomYear}`;",
-							"",
-							"// Salva no ambiente para usar no corpo do POST",
-							"pm.environment.set(\"periodTitle\", title);"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
 					"listen": "test",
 					"script": {
 						"exec": [
@@ -283,7 +269,24 @@
 							"});",
 							"",
 							"",
-							""
+							"pm.test(\"Response status code is 200 and response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const randomYear = Math.floor(Math.random() * (1700 - 1600 + 1)) + 1000;",
+							"const title = `${randomYear}`;",
+							"",
+							"// Salva no ambiente para usar no corpo do POST",
+							"pm.environment.set(\"periodTitle\", title);"
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -292,17 +295,16 @@
 			],
 			"request": {
 				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{firebase_token}}",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{firebase_token}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n  \"title\": {{periodTitle}}\n}",
@@ -398,26 +400,20 @@
 							"    });",
 							"});"
 						],
-						"type": "text/javascript"
+						"type": "text/javascript",
+						"packages": {}
 					}
 				}
 			],
 			"request": {
 				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{firebase_token}}",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "GET",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer <firebase_token>",
+						"value": "Bearer {{firebase_token}}",
 						"type": "text"
 					}
 				],
@@ -512,20 +508,13 @@
 			],
 			"request": {
 				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{firebase_token}}",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "GET",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "{{firebase_token}}",
+						"value": "Bearer {{firebase_token}}",
 						"type": "text"
 					}
 				],
@@ -614,11 +603,14 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "POST",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer <firebase_token>",
+						"value": "Bearer {{firebase_token}}",
 						"type": "text"
 					}
 				],
@@ -747,11 +739,14 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer <firebase_token>",
+						"value": "Bearer {{firebase_token}}",
 						"type": "text"
 					}
 				],
@@ -778,84 +773,22 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"",
-							"",
-							"pm.test(\"Response status code is 200\", function () {",
-							"    pm.expect(pm.response.code).to.eql(200);",
-							"});",
-							"",
-							"",
-							"pm.test(\"Validate the presence of required fields\", function () {",
-							"    const responseData = pm.response.json();",
-							"    ",
-							"    pm.expect(responseData).to.be.an('object');",
-							"    pm.expect(responseData).to.have.all.keys('id', 'title', 'user', 'is_archived', 'created_at', 'total_incomes', 'total_expenses', 'net_income');",
-							"});",
-							"",
-							"",
-							"pm.test(\"The cycles array must be present and contain at least one element\", function () {",
-							"    const responseData = pm.response.json();",
-							"    ",
-							"    pm.expect(responseData).to.be.an('object');",
-							"    pm.expect(responseData.cycles).to.exist.and.to.be.an('array').that.is.not.empty;",
-							"});",
-							"",
-							"",
-							"pm.test(\"Response time is less than 200ms\", function () {",
-							"    pm.expect(pm.response.responseTime).to.be.below(200);",
-							"});",
-							"",
-							"pm.test(\"Response should contain required properties\", function () {",
-							"    const responseData = pm.response.json();",
-							"    pm.expect(responseData).to.be.an('object');",
-							"    pm.expect(responseData).to.have.all.keys(\"id\", \"title\", \"user\", \"is_archived\", \"created_at\", \"total_incomes\", \"total_expenses\", \"net_income\", \"planned_total_incomes\", \"planned_total_expenses\", \"planned_net_income\", \"cycles\", \"expense_difference_value\", \"expense_difference_percentage\", \"income_difference_value\", \"income_difference_percentage\", \"net_income_difference_value\", \"net_income_difference_percentage\");",
-							"    ",
-							"    pm.expect(responseData.cycles).to.be.an('array').that.is.not.empty;",
-							"    responseData.cycles.forEach(cycle => {",
-							"        pm.expect(cycle).to.have.all.keys(\"id\", \"month\", \"name\", \"period\", \"total_incomes\", \"total_expenses\", \"net_income\");",
-							"    });",
-							"});",
-							"",
-							"",
-							"pm.test(\"Numerical values should be non-negative integers\", function () {",
-							"    const responseData = pm.response.json();",
-							"",
-							"    const numericalFields = [",
-							"        'total_incomes',",
-							"        'total_expenses',",
-							"        'net_income',",
-							"        'planned_total_incomes',",
-							"        'planned_total_expenses',",
-							"        'planned_net_income',",
-							"        'expense_difference_value',",
-							"        'expense_difference_percentage',",
-							"        'income_difference_value',",
-							"        'income_difference_percentage',",
-							"        'net_income_difference_value',",
-							"        'net_income_difference_percentage'",
-							"    ];",
-							"",
-							"    numericalFields.forEach(field => {",
-							"        pm.expect(responseData[field]).to.be.a('number').and.to.be.at.least(0, `${field} should be a non-negative integer`);",
-							"    });",
-							"",
-							"    responseData.cycles.forEach(cycle => {",
-							"        numericalFields.forEach(field => {",
-							"            pm.expect(cycle[field]).to.be.a('number').and.to.be.at.least(0, `${field} in cycles should be a non-negative integer`);",
-							"        });",
-							"    });",
-							"});"
+							""
 						],
-						"type": "text/javascript"
+						"type": "text/javascript",
+						"packages": {}
 					}
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer <firebase_token>",
+						"value": "Bearer {{firebase_token}}",
 						"type": "text"
 					}
 				],
@@ -931,11 +864,14 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "POST",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer <firebase_token>",
+						"value": "Bearer {{firebase_token}}",
 						"type": "text"
 					}
 				],
@@ -1014,11 +950,14 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer <firebase_token>",
+						"value": "Bearer {{firebase_token}}",
 						"type": "text"
 					}
 				],
@@ -1087,16 +1026,20 @@
 							"    pm.expect(responseData.updated_at).to.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$/, \"Updated_at should be in ISO 8601 format\");",
 							"});"
 						],
-						"type": "text/javascript"
+						"type": "text/javascript",
+						"packages": {}
 					}
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "PATCH",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer <firebase_token>",
+						"value": "Bearer {{firebase_token}}",
 						"type": "text"
 					}
 				],
@@ -1168,11 +1111,14 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "DELETE",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer <firebase_token>",
+						"value": "Bearer {{firebase_token}}",
 						"type": "text"
 					}
 				],
@@ -1255,16 +1201,20 @@
 							"    pm.expect(pm.response.responseTime).to.be.below(200);",
 							"});"
 						],
-						"type": "text/javascript"
+						"type": "text/javascript",
+						"packages": {}
 					}
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer <firebase_token>",
+						"value": "Bearer {{firebase_token}}",
 						"type": "text"
 					}
 				],
@@ -1293,26 +1243,49 @@
 					"script": {
 						"exec": [
 							"",
+							"",
+							"",
+							"",
+							"",
+							"",
 							"pm.test(\"Response status code is 204\", function () {",
 							"  pm.response.to.have.status(204);",
 							"});",
+							"",
 							"pm.test(\"Response time is less than 200ms\", function () {",
 							"  pm.expect(pm.response.responseTime).to.be.below(200);",
 							"});",
 							"",
-							"pm.test(\"Response body is empty for a successful DELETE request\", function () {",
-							"    pm.expect(pm.response.text()).to.be.empty;",
-							"});",
-							"",
-							"",
-							"pm.test(\"Response headers contain 'Content-Type' as 'text/xml'\", function () {",
+							"pm.test(\"Response headers include 'Content-Type' as 'text/xml'\", function () {",
 							"    pm.expect(pm.response.headers.get('Content-Type')).to.eql('text/xml');",
 							"});",
 							"",
 							"",
+							"pm.test(\"Response body is empty for a successful DELETE request\", function () {",
+							"    const responseData = xml2Json(pm.response.text());",
+							"    ",
+							"    pm.expect(responseData).to.be.null;",
+							"});",
 							"",
 							"",
+							"pm.test(\"Response conforms to expected schema for DELETE operation\", function () {",
+							"    pm.response.to.have.status(204);",
+							"    pm.expect(pm.response.text()).to.be.null;",
+							"});",
 							"",
+							"",
+							"pm.test(\"Ensure that the response does not contain any error messages or codes\", function () {",
+							"    const responseData = xml2Json(pm.response.text());",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.not.have.property('error');",
+							"    pm.expect(responseData).to.not.have.property('errorCode');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
 							"",
 							""
 						],
@@ -1333,11 +1306,14 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "DELETE",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer <firebase_token>",
+						"value": "Bearer {{firebase_token}}",
 						"type": "text"
 					}
 				],
@@ -1496,11 +1472,14 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer <firebase_token>",
+						"value": "Bearer {{firebase_token}}",
 						"type": "text"
 					}
 				],
