@@ -2,11 +2,13 @@ name: Run Postman API Tests
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ develop ]   # fires when a PR is merged into develop
 
 jobs:
   postman-tests:
     runs-on: ubuntu-latest
-    continue-on-error: true   
+    continue-on-error: true
 
     steps:
       - name: Checkout Tests Repository
