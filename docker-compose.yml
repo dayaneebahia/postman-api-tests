@@ -19,7 +19,7 @@ services:
       retries: 5
 
   gradiafinance:
-    build: ./gradia_api   # <-- aponta para o código da API clonada
+    build: ./gradia_api   
     container_name: django_app
     restart: always
     volumes:
@@ -30,7 +30,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    environment:          # <-- Variáveis de ambiente fixas
+    environment:          
       DEBUG: "True"
       DB_NAME: gradiafinance
       DB_USER: postgres

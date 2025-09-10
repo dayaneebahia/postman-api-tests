@@ -1,4 +1,4 @@
-name: Run Postman API Tests
+name: Run Postman API Tests -PUC
 
 on:
   workflow_dispatch:
@@ -21,12 +21,12 @@ jobs:
       - name: Build and start API via Docker Compose
         run: |
           docker compose up -d --build
-          echo "⏳ Waiting for API to be ready..."
+          echo " Waiting for API to be ready..."
           until curl -s http://localhost:8000/finance/cycles/ > /dev/null; do
             echo "API not ready yet..."
             sleep 5
           done
-          echo "✅ API is up!"
+          echo "API is up"
 
       # 4. Instala Node.js
       - name: Install Node.js
@@ -62,9 +62,9 @@ jobs:
       - name: Publish JUnit Report
         uses: dorny/test-reporter@v1
         with:
-          name: Postman API Tests
+          name: Postman API Tests -PUC
           path: results.xml
-          reporter: java-junit   # <-- ALTERADO para o formato correto do Newman
+          reporter: java-junit   
         if: always()
 
       # 9. Para e remove os containers no final
